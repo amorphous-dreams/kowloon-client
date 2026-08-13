@@ -10,6 +10,7 @@ import { FilesClient } from './files/index.js';
 import { NotificationsClient } from './notifications/index.js';
 import { ThemesClient } from './themes/index.js';
 import { AdminClient } from './admin/index.js';
+import { ModerationClient } from './moderation/index.js';
 import { detectStorage } from './utils/storage.js';
 
 /**
@@ -45,11 +46,16 @@ export class KowloonClient {
     // Auth client
     this.auth = new AuthClient(this.http, this.storage);
 
+    // Moderation client — the logged-in user's own blocked/muted list, for
+    // client-side filtering of anonymously-fetched remote content. Created
+    // before activities so block/unblock/mute/unmute can invalidate it.
+    this.moderation = new ModerationClient(this.http, this.auth);
+
     // Files client — instantiated before activities so activities can delegate to it
     this.files = new FilesClient(this.http);
 
     // Activities client (posts, replies, reacts, circles, groups, bookmarks, pages, user actions)
-    this.activities = new ActivitiesClient(this.http, this.files, this.auth);
+    this.activities = new ActivitiesClient(this.http, this.files, this.auth, this.moderation);
 
     // Feed client (content feeds, single object retrieval, collections)
     this.feeds = new FeedClient(this.http);
@@ -86,6 +92,7 @@ export { FilesClient } from './files/index.js';
 export { NotificationsClient } from './notifications/index.js';
 export { ThemesClient } from './themes/index.js';
 export { AdminClient } from './admin/index.js';
+export { ModerationClient } from './moderation/index.js';
 export * from './prefs/manifest.js';
 export * from './prefs/pins.js';
 export * from './embeds/index.js';

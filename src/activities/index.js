@@ -10,11 +10,14 @@ export class ActivitiesClient {
   /**
    * @param {HttpClient} http - HTTP client instance
    * @param {FilesClient} files - Files client instance (for upload delegation)
+   * @param {AuthClient} auth
+   * @param {ModerationClient} [moderation] - Invalidated on block/unblock/mute/unmute
    */
-  constructor(http, files, auth) {
+  constructor(http, files, auth, moderation) {
     this.http = http;
     this.files = files;
     this.auth = auth;
+    this.moderation = moderation;
   }
 
   /**
@@ -398,12 +401,18 @@ export class ActivitiesClient {
     const all = members ?? memberIds ?? (memberId || userId ? [memberId || userId] : null);
     if (!all?.length) throw new ValidationError('memberId, memberIds, or members is required');
 
-    return await this._post({
+    const result = await this._post({
       type: 'Add',
       objectType: 'Circle',
       target: circleId,
       object: all.length === 1 ? all[0] : all,
     });
+    // Whole-server block/mute (a bare "@domain" member) goes through this
+    // generic method rather than block()/mute() — invalidate when it's
+    // touching the user's own Blocked/Muted circle specifically.
+    const own = this.auth?.getUser?.();
+    if (own && (circleId === own.blocked || circleId === own.muted)) this.moderation?.invalidate();
+    return result;
   }
 
   /**
@@ -419,12 +428,15 @@ export class ActivitiesClient {
     const member = memberId || userId;
     if (!member) throw new ValidationError('memberId is required');
 
-    return await this._post({
+    const result = await this._post({
       type: 'Remove',
       objectType: 'Circle',
       target: circleId,
       object: member,
     });
+    const own = this.auth?.getUser?.();
+    if (own && (circleId === own.blocked || circleId === own.muted)) this.moderation?.invalidate();
+    return result;
   }
 
   // ---- Groups ----
@@ -813,7 +825,9 @@ export class ActivitiesClient {
     const { userId } = options;
     if (!userId) throw new ValidationError('userId is required');
 
-    return await this._post({ type: 'Block', objectType: 'User', target: userId });
+    const result = await this._post({ type: 'Block', objectType: 'User', target: userId });
+    this.moderation?.invalidate();
+    return result;
   }
 
   /**
@@ -826,7 +840,9 @@ export class ActivitiesClient {
     const { userId } = options;
     if (!userId) throw new ValidationError('userId is required');
 
-    return await this._post({ type: 'Unblock', objectType: 'User', target: userId });
+    const result = await this._post({ type: 'Unblock', objectType: 'User', target: userId });
+    this.moderation?.invalidate();
+    return result;
   }
 
   /**
@@ -839,7 +855,9 @@ export class ActivitiesClient {
     const { userId } = options;
     if (!userId) throw new ValidationError('userId is required');
 
-    return await this._post({ type: 'Mute', objectType: 'User', target: userId });
+    const result = await this._post({ type: 'Mute', objectType: 'User', target: userId });
+    this.moderation?.invalidate();
+    return result;
   }
 
   /**
@@ -852,7 +870,9 @@ export class ActivitiesClient {
     const { userId } = options;
     if (!userId) throw new ValidationError('userId is required');
 
-    return await this._post({ type: 'Unmute', objectType: 'User', target: userId });
+    const result = await this._post({ type: 'Unmute', objectType: 'User', target: userId });
+    this.moderation?.invalidate();
+    return result;
   }
 
   /**
