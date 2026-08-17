@@ -105,12 +105,30 @@ export class AdminClient {
     return await this.http.patch(`/admin/circles/${encodeURIComponent(circleId)}`, updates);
   }
 
+  async createCircle(options = {}) {
+    const { name, summary, icon, to, canReply, canReact } = options;
+    if (!name) throw new ValidationError('name is required');
+    const body = { name };
+    if (summary !== undefined) body.summary = summary;
+    if (icon !== undefined) body.icon = icon;
+    if (to) body.to = to;
+    if (canReply) body.canReply = canReply;
+    if (canReact) body.canReact = canReact;
+    return await this.http.post('/admin/circles', body);
+  }
+
   async deleteCircle(options) {
     const { circleId, fullDelete } = options;
     if (!circleId) throw new ValidationError('circleId is required');
     const params = {};
     if (fullDelete) params.fullDelete = 'true';
     return await this.http.delete(`/admin/circles/${encodeURIComponent(circleId)}`, { params });
+  }
+
+  async restoreCircle(options) {
+    const { circleId } = options;
+    if (!circleId) throw new ValidationError('circleId is required');
+    return await this.http.post(`/admin/circles/${encodeURIComponent(circleId)}/restore`);
   }
 
   // ---- Groups ----
@@ -123,6 +141,21 @@ export class AdminClient {
     const { groupId } = options;
     if (!groupId) throw new ValidationError('groupId is required');
     return await this.http.get(`/admin/groups/${encodeURIComponent(groupId)}`);
+  }
+
+  async createGroup(options = {}) {
+    const { name, description, icon, rsvpPolicy, to, canReply, canReact, urls, location } = options;
+    if (!name) throw new ValidationError('name is required');
+    const body = { name };
+    if (description !== undefined) body.description = description;
+    if (icon !== undefined) body.icon = icon;
+    if (rsvpPolicy) body.rsvpPolicy = rsvpPolicy;
+    if (to) body.to = to;
+    if (canReply) body.canReply = canReply;
+    if (canReact) body.canReact = canReact;
+    if (urls) body.urls = urls;
+    if (location) body.location = location;
+    return await this.http.post('/admin/groups', body);
   }
 
   async updateGroup(options) {
@@ -155,6 +188,26 @@ export class AdminClient {
     const { postId } = options;
     if (!postId) throw new ValidationError('postId is required');
     return await this.http.get(`/admin/posts/${encodeURIComponent(postId)}`);
+  }
+
+  async createPost(options = {}) {
+    const { type, title, source, summary, image, attachments, tags, to, canReply, canReact, location } = options;
+    if (!source?.content?.trim() && !title?.trim()) {
+      throw new ValidationError('source.content or title is required');
+    }
+    const body = {};
+    if (type) body.type = type;
+    if (title) body.title = title;
+    if (source) body.source = source;
+    if (summary !== undefined) body.summary = summary;
+    if (image !== undefined) body.image = image;
+    if (attachments) body.attachments = attachments;
+    if (tags) body.tags = tags;
+    if (to) body.to = to;
+    if (canReply) body.canReply = canReply;
+    if (canReact) body.canReact = canReact;
+    if (location) body.location = location;
+    return await this.http.post('/admin/posts', body);
   }
 
   async updatePost(options) {
