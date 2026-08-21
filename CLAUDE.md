@@ -53,7 +53,11 @@ client.search         // SearchClient
 
 All write operations go through `POST /outbox`.
 
-Methods: createPost, updatePost, deletePost, createReply, react, deleteReact, createActivity, createCircle, updateCircle, deleteCircle, addToCircle, removeFromCircle, createGroup, updateGroup, deleteGroup, joinGroup, leaveGroup, approveJoinRequest, rejectJoinRequest, createBookmark, updateBookmark, deleteBookmark, createPage, updatePage, deletePage, updateProfile, block, unblock, mute, unmute, flag, upload (delegates to FilesClient)
+Methods: createPost, updatePost, deletePost, createReply, react, createActivity, createCircle, updateCircle, deleteCircle, addToCircle, removeFromCircle, createGroup, updateGroup, deleteGroup, joinGroup, leaveGroup, approveJoinRequest, rejectJoinRequest, createBookmark, updateBookmark, deleteBookmark, createPage, updatePage, deletePage, updateProfile, block, unblock, mute, unmute, flag, upload (delegates to FilesClient)
+
+There is no `deleteReact()` — the server has no way to receive an "undo a reaction" request by ID (`Undo` requires the full original activity, not a target ID). To clear a reaction, call `react({ postId, emoji: '' })` — an empty/omitted emoji clears the existing reaction (see React's set/clear behavior below).
+
+`rejectJoinRequest({ groupId, userId })` sends `{ type: 'Remove', to: groupId, object: userId }` — there is no dedicated "Reject" activity type. The server's `Remove` handler already falls back to the group's Pending circle when the target isn't found in Members, which is exactly what rejecting a pending request means. This mirrors `approveJoinRequest`'s `Add`-based pattern.
 
 ### Read Operations (FeedClient)
 

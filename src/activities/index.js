@@ -294,19 +294,6 @@ export class ActivitiesClient {
     });
   }
 
-  /**
-   * Remove a reaction
-   * @param {Object} options
-   * @param {string} options.reactId
-   * @returns {Promise<Object>}
-   */
-  async deleteReact(options) {
-    const { reactId } = options;
-    if (!reactId) throw new ValidationError('reactId is required to remove reaction');
-
-    return await this._post({ type: 'Undo', objectType: 'React', target: reactId });
-  }
-
   // ---- Generic Activity ----
 
   /**
@@ -549,7 +536,11 @@ export class ActivitiesClient {
   }
 
   /**
-   * Reject a join request
+   * Reject a join request. There is no dedicated "Reject" activity type —
+   * the server's Remove handler falls back to the group's Pending circle
+   * when the target isn't found in Members, which is exactly what
+   * rejecting a pending request means. This mirrors approveJoinRequest's
+   * Add-based pattern.
    * @param {Object} options
    * @param {string} options.groupId
    * @param {string} options.userId
@@ -560,7 +551,7 @@ export class ActivitiesClient {
     if (!groupId) throw new ValidationError('groupId is required');
     if (!userId) throw new ValidationError('userId is required');
 
-    return await this._post({ type: 'Reject', to: groupId, object: userId });
+    return await this._post({ type: 'Remove', to: groupId, object: userId });
   }
 
   // ---- Bookmarks ----
