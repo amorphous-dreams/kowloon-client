@@ -16,7 +16,12 @@ src/
   search/index.js        — SearchClient (search: posts, pages, groups, users, bookmarks)
   files/index.js         — FilesClient (upload, list, getMeta, serveUrl, delete)
   notifications/index.js — NotificationsClient (list, unreadCount, markRead, markUnread, markAllRead, dismiss)
-  admin/index.js         — AdminClient (35 methods: CRUD for all types, settings, moderation) — separate export
+  admin/index.js         — AdminClient (CRUD for all types, settings, moderation) — also on client.admin, see below
+  moderation/index.js    — ModerationClient (client-side block/mute filtering for anonymous cross-server views)
+  embeds/index.js        — resolveEmbed()/isEmbeddable() registry (YouTube, etc.) shared with web + mobile
+  prefs/manifest.js      — PREF_GROUPS/PREFS — shared source of truth for settings UIs (web + mobile)
+  prefs/pins.js          — pin/unpin/togglePin/sortByPins — feed-selector pin helpers
+  themes/index.js        — ThemesClient (list/getById public; create/update/delete/setDefault admin-only)
   utils/errors.js        — Error classes (KowloonError, AuthenticationError, ValidationError, etc.)
   utils/storage.js       — Auto-detect storage adapter (localStorage, AsyncStorage, in-memory)
 ```
@@ -29,7 +34,7 @@ src/
 - **React is separate** too. `react` sends `{ type: "React", objectType: "React", to: targetId }`.
 - **Notifications are in NotificationsClient** — not in FeedClient.
 - **Files are in FilesClient** — `activities.upload()` delegates to `files.upload()`.
-- **Admin is a separate package export** — `import { AdminClient } from '@kowloon/client/admin'`
+- **Admin is available both ways** — `client.admin` on every normal `KowloonClient` instance, and also as a separate package export: `import { AdminClient } from '@kowloon/client/admin'`
 - **Profile updates are Activities** — `updateProfile()` posts to outbox with `type: "Update"`
 
 ### Client Initialization
