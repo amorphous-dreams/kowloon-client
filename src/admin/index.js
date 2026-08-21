@@ -490,10 +490,6 @@ export class AdminClient {
     return await this.http.delete(`/admin/system/mods/${encodeURIComponent(userId)}`);
   }
 
-  async backup() {
-    return await this.http.get('/admin/system/backup');
-  }
-
   async getLogs(options = {}) {
     const { tail = 200, level = 'all' } = options;
     return await this.http.get('/admin/system/logs', { params: { tail, level } });
