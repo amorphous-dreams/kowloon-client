@@ -144,10 +144,10 @@ export class AdminClient {
   }
 
   async createGroup(options = {}) {
-    const { name, description, icon, rsvpPolicy, to, canReply, canReact, urls, location } = options;
+    const { name, summary, icon, rsvpPolicy, to, canReply, canReact, urls, location } = options;
     if (!name) throw new ValidationError('name is required');
     const body = { name };
-    if (description !== undefined) body.description = description;
+    if (summary !== undefined) body.summary = summary;
     if (icon !== undefined) body.icon = icon;
     if (rsvpPolicy) body.rsvpPolicy = rsvpPolicy;
     if (to) body.to = to;

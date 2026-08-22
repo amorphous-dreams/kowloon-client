@@ -443,7 +443,7 @@ export class ActivitiesClient {
     const { name, description, location, icon, image, to, membershipPolicy, rsvpPolicy } = options;
     if (!name || typeof name !== 'string') throw new ValidationError('Group name is required');
 
-    const object = { type: 'Group', name, description: description || '' };
+    const object = { type: 'Group', name, summary: description || '' };
     if (location) object.location = location;
     if (icon) object.icon = icon;
     if (image) object.image = image;
@@ -469,7 +469,7 @@ export class ActivitiesClient {
 
     const object = {};
     if (name !== undefined) object.name = name;
-    if (description !== undefined) object.description = description;
+    if (description !== undefined) object.summary = description;
     if (location !== undefined) object.location = location;
     if (icon !== undefined) object.icon = icon;
     if (image !== undefined) object.image = image;
