@@ -85,6 +85,22 @@ export class FeedClient {
   }
 
   /**
+   * Get server-owned bookmarks/folders (curated links tree), viewer-scoped.
+   * No serverId param -- unlike getServerPages, this always means "this
+   * server's own bookmarks," which is the only thing it can mean since
+   * server-owned bookmarks never federate.
+   * @param {Object} [options]
+   * @param {number} [options.limit]
+   * @returns {Promise<Object>}
+   */
+  async getServerBookmarks(options = {}) {
+    const { limit } = options;
+    const params = {};
+    if (limit) params.limit = limit;
+    return await this.http.get('/bookmarks/server', { params });
+  }
+
+  /**
    * Get posts from members of a circle (primary timeline view)
    * @param {Object} options
    * @param {string} options.circleId

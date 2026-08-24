@@ -242,6 +242,20 @@ export class AdminClient {
     return await this.http.get(`/admin/bookmarks/${encodeURIComponent(bookmarkId)}`);
   }
 
+  async createBookmark(options = {}) {
+    const { title, type, href, target, image, tags, to, parentFolder } = options;
+    if (!title) throw new ValidationError('title is required');
+    const body = { title };
+    if (type) body.type = type;
+    if (href) body.href = href;
+    if (target) body.target = target;
+    if (image !== undefined) body.image = image;
+    if (tags) body.tags = tags;
+    if (to) body.to = to;
+    if (parentFolder !== undefined) body.parentFolder = parentFolder;
+    return await this.http.post('/admin/bookmarks', body);
+  }
+
   async updateBookmark(options) {
     const { bookmarkId, updates } = options;
     if (!bookmarkId) throw new ValidationError('bookmarkId is required');
@@ -254,6 +268,12 @@ export class AdminClient {
     const params = {};
     if (fullDelete) params.fullDelete = 'true';
     return await this.http.delete(`/admin/bookmarks/${encodeURIComponent(bookmarkId)}`, { params });
+  }
+
+  async restoreBookmark(options) {
+    const { bookmarkId } = options;
+    if (!bookmarkId) throw new ValidationError('bookmarkId is required');
+    return await this.http.post(`/admin/bookmarks/${encodeURIComponent(bookmarkId)}/restore`);
   }
 
   // ---- Pages ----
