@@ -243,9 +243,10 @@ export class AdminClient {
   }
 
   async createBookmark(options = {}) {
-    const { title, type, href, target, image, tags, to, parentFolder } = options;
+    const { title, summary, type, href, target, image, tags, to, parentFolder } = options;
     if (!title) throw new ValidationError('title is required');
     const body = { title };
+    if (summary !== undefined) body.summary = summary;
     if (type) body.type = type;
     if (href) body.href = href;
     if (target) body.target = target;

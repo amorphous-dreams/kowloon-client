@@ -562,6 +562,7 @@ export class ActivitiesClient {
    * @param {string} options.type - "Bookmark" or "Folder"
    * @param {string} [options.href] - URL (required for Bookmark)
    * @param {string} options.title
+   * @param {string} [options.summary]
    * @param {string} [options.parentId] - Parent folder ID
    * @param {string} options.to - Audience
    * @param {string} options.canReact
@@ -570,7 +571,7 @@ export class ActivitiesClient {
    */
   async createBookmark(options) {
     const {
-      type = 'Bookmark', href, title, parentFolder, to,
+      type = 'Bookmark', href, title, summary, parentFolder, to,
       canReply = 'public', canReact = 'public',
       body, image, featuredImage, tags, dedupeKey,
     } = options;
@@ -580,6 +581,7 @@ export class ActivitiesClient {
 
     const object = { type, title };
     if (href) object.href = href;
+    if (summary) object.summary = summary;
     if (parentFolder) object.parentFolder = parentFolder;
     // Send body as source so Bookmark pre-save can render it to HTML
     if (body) object.source = { content: body, mediaType: 'text/markdown' };
